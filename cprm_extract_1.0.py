@@ -1,0 +1,424 @@
+# -*- coding: utf-8 -*-
+#encoding: utf-8
+"""
+Created on Wed Jan  9 14:26:36 2019
+
+@author: David
+"""
+import bs4 as bs
+import numpy as np
+import urllib.request
+
+codelist_catolandia = [ 2900000270, 2900000275, 2900001402, 2900001422, 2900001437, 2900001653,
+2900001655, 2900001902, 2900001911, 2900005362, 2900005363, 2900005364, 2900005380, 2900005381,
+2900005383, 2900005460, 2900005462, 2900007147, 2900016793, 2900016794, 2900016795,2900016798,
+2900028997]
+
+codelist_barreiras = [2900000054,2900000151,2900000152, 2900000154,2900000263,2900000265,2900000266,
+2900001046,2900001048,2900001700,2900003839,2900003840,2900004032,2900004033,2900004034,2900004035,
+2900004036,2900004037,2900004038,2900004039,2900004040,2900004041,2900004042,2900004043,2900004044,
+2900004045,2900004046,2900004047,2900004048,2900004049,2900009677,2900013454,2900013455,2900013456,
+2900013462,2900013463,2900013498,2900013918,2900014128,2900014129,2900014130,2900014131,2900014132,
+2900014134,2900014135,2900014136,2900014137,2900014138,2900014248,2900016196,2900016229,2900016662,
+2900016663,2900016664,2900016665,2900020672,2900020673,2900020686,2900021038,2900021039,2900021040,
+2900021048,2900021049,2900021050,2900021051,2900021052,2900021053,2900021054,2900021055,2900021056,
+2900021057,2900021058,2900021059,2900021060,2900021063,2900021796,2900022233,2900022234,2900022235,
+2900023832,2900023833,2900024168,2900024447,2900024448,2900024470,2900024699,2900024786,2900024814,
+2900024835,2900024870,2900024871,2900025771,2900025772,2900025773,2900025774,2900025775,2900025776,
+2900026427,2900026428,2900026430,2900026431,2900026432,2900026433,2900026434,2900026435,2900026476,
+2900026479,2900026480,2900026488,2900026490,2900026491,2900026492,2900026493,2900026863,2900027324,
+2900027325,2900027364,2900027365,2900027366,2900027367,2900027368,2900027506,2900027507,2900027508,
+2900027509,2900027510,2900027511,2900027512,2900027513,2900027514,2900027527,2900027528,2900027529,
+2900027530,2900027531,2900027532,2900027533,2900027534,2900027535,2900027536,2900027537,2900027538,
+2900027539,2900027540,2900027541,2900027542,2900027543,2900027544,2900027545,2900027588,2900027589,
+2900027590,2900027591,2900027592,2900027593,2900027594,2900027595,2900027596,2900027607,2900028831,
+2900028832,2900028834,2900028845,2900028849,2900028860,2900028861,2900028869,2900028870,2900028871,
+2900029567,2900029639,2900029641,2900029642,2900029643,2900029644,2900029645,2900029646,2900029647,
+2900029648]
+
+codelist_saodes=[
+2900000175,2900000177,2900001044,2900001668,2900001673,2900001682,2900001732,2900005382,2900006093,
+2900013367,2900013368,2900013369,2900013370,2900013371,2900013372,2900013373,2900013374,2900013375,
+2900013376,2900013377,2900013378,2900013527,2900013549,2900013556,2900013557,2900013558,2900013606,
+2900013919,2900020675,2900020679,2900020681,2900020682,2900020683,2900020684,2900020685,2900020687,
+2900020688,2900020689,2900021109,2900021110,2900021111,2900021112,2900021113,2900021114,2900021115,
+2900021116,2900021117,2900021118,2900021119,2900021120,2900021121,2900021122,2900021123,2900021124,
+2900021125,2900021204,2900021205,2900021206,2900021207,2900021208,2900021209,2900021210,2900021211,
+2900021212,2900021213,2900021214,2900021215,2900021216,2900021217,2900021218,2900021219,2900021220,
+2900021221,2900021222,2900021223,2900021224,2900021225,2900021226,2900021227,2900021228,2900021229,
+2900021231,2900021232,2900021233,2900021234,2900021235,2900021236,2900021237,2900021238,2900021239,
+2900021240,2900021241,2900021242,2900021243,2900021244,2900021245,2900021246,2900021247,2900021248,
+2900021249,2900021250,2900021251,2900021252,2900021253,2900021254,2900021255,2900021256,2900021257,
+2900021258,2900021259,2900021260,2900021261,2900021262,2900021263,2900021264,2900021265,2900021266,
+2900021267,2900021268,2900021269,2900021270,2900021271,2900021272,2900021273,2900021274,2900021275,
+2900021276,2900021277,2900021278,2900021279,2900021280,2900021281,2900021282,2900021283,2900021284,
+2900021285,2900021286,2900021287,2900021288,2900021289,2900021290,2900021291,2900021292,2900021293,
+2900021294,2900021295,2900021296,2900021297,2900021298,2900021299,2900021300,2900021301,2900021302,
+2900021303,2900021304,2900021305,2900021306,2900021307,2900021308,2900021309,2900021310,2900021311,
+2900021312,2900021313,2900021314,2900021315,2900021316,2900021317,2900021318,2900021319,2900021320,
+2900021321,2900021322,2900021323,2900021324,2900021325,2900021797,2900021798,2900021800,2900021901,
+2900021964,2900021965,2900022816,2900023459,2900023955,2900023956,2900023957,2900024303,2900024304,
+2900024872,2900024873,2900024874,2900024875,2900024876,2900024877,2900024878,2900024879,2900024880,
+2900024881,2900024882,2900026467,2900026469,2900026481,2900026494,2900027104,2900027105,2900027475,
+2900027598,2900027599,2900027600,2900027601,2900027602,2900027603,2900027604,2900027605,2900027606,
+2900027626,2900027627,2900027628,2900027631,2900027632,2900027633,2900027634,2900027676,2900027677,
+2900027678,2900027679,2900027680,2900027681,2900027682,2900027683,2900027684,2900027685,2900027686,
+2900027687,2900027692,2900027693,2900027694,2900027695,2900027696,2900027697,2900027698,2900027699,
+2900027705,2900027706,2900027707,2900027708,2900027709,2900027710,2900027711,2900027712,2900027713,
+2900027714,2900027715,2900027716,2900027717,2900027718,2900027719,2900027720,2900027721,2900027722,
+2900027723,2900027724,2900027725,2900027726,2900027727,2900027728,2900027729,2900027730,2900027731,
+2900027732,2900027733,2900027734,2900027735,2900028578,2900028835,2900028836,2900028837,2900028853,
+2900028854,2900028856,2900028857,2900028858,2900028859,2900028862,2900028863,2900029484,2900029490,
+2900029593,2900029594,2900029595,2900029596,2900029605,2900029636,2900029640,2900029690,2900029691,
+2900029692,2900029693,2900029694,2900029695,2900029696,2900029697,2900029698,2900029699,2900029700,
+2900029701,2900029702,2900029703,2900029704,2900029705,2900029706]
+
+codelist_baianopolis=[2900000130,
+2900000131,2900001741,2900001749,2900001841,2900001845,2900004234,2900004235,2900004236,2900004237,
+2900004238,2900004239,2900004240,2900004241,2900004242,2900004243,2900004244,2900004245,2900004246,
+2900004247,2900004248,2900013339,2900013340,2900013341,2900013342,2900013343,2900013344,2900014189,
+2900014231,2900014232,2900014235,2900014399,2900016195,2900016225,2900016228,2900016655,2900022834,
+2900023485,2900023761,2900023834,2900023835,2900024707,2900024818,2900026182,2900026183,2900026184,
+2900026185,2900028927,2900028942,2900028943,2900029482,2900029483,2900029608]
+
+codelist_angical=[
+2900000289,2900000291,2900000293,2900000299,2900001621,2900001624,2900001643,2900001645,2900001660,
+2900001890,2900003731,2900003732,2900003733,2900003734,2900003735,2900003736,2900003737,2900003738,
+2900003739,2900003740,2900003741,2900003742,2900003743,2900003744,2900003745,2900003746,2900003747,
+2900003748,2900003749,2900003750,2900003751,2900003752,2900003753,2900003754,2900003755,2900003756,
+2900014035,2900014036,2900014112,2900014121,2900014171,2900016224,2900016226,2900016227,2900016651,
+2900022101,2900022102,2900022103,2900022104,2900022105,2900022106,2900023107,2900023888,2900023889,
+2900023890,2900024081,2900024082,2900024083,2900024084,2900026177,2900026178,2900027331,2900027332,
+2900027333,2900027334,2900027335,2900027336,2900027337,2900027338,2900027339,2900027340,2900027341,
+2900027342,2900027343,2900027344,2900027345,2900027346,2900027347,2900028910,2900028911,2900028912,
+2900028913]
+
+codelist_araucaria = [
+3500012503,3500012663, 3500012762, 3500012794, 3500012821, 3500012926, 3500012950, 3500012975,3500012985,
+3500013003, 3500013223, 3500013317, 3500013341, 3500013342, 3500013395, 3500013556, 3500013636,3500013960,
+3500013970, 3500013980, 3500013983, 3500013986, 3500013990, 3500014031, 3500014036, 3500014040, 3500014081,
+3500014089,
+3500014094,
+3500014118,
+3500014201,
+3500014202,
+3500014268,
+3500014269,
+3500014282,
+3500014340,
+3500014379,
+3500014381,
+3500014406,
+3500014433,
+3500014471,
+3500014472,
+3500014561,
+3500014627,
+3500014630,
+3500016326,
+3500017460,
+3500018806,
+3500018920,
+3500018921,
+3500018970,
+3500018996,
+3500019004,
+3500019010,
+3500019020,
+3500019113,
+3500019202,
+3500019259,
+3500019275,
+3500019347,
+3500019399,
+3500019506,
+3500019848,
+3500019957,
+3500020147,
+3500020348,
+3500021353,
+3500021568,
+3500021632,
+3500021800,
+3500021904,
+3500022042,
+3500022130,
+3500022387,
+3500032206,
+3500032233,
+3500032347,
+3500033198,
+3500033209,
+3500033218,
+3500033473,
+3500034411,
+3500034601,
+3500034694,
+3500034698,
+3500034889,
+3500035281,
+3500035548,
+3500035725,
+3500035742,
+3500035823,
+3500036202,
+3500036218,
+3500036250,
+3500036759,
+3500037342,
+3500037352,
+3500037466,
+3500037468,
+3500037888,
+3500037945,
+3500038330,
+3500038477,
+3500038481,
+3500039969,
+3500040086,
+3500040360,
+3500041031,
+3500041742,
+3500042273,
+3500042281,
+3500042282,
+3500042327,
+3500042634,
+3500042918,
+3500043411,
+3500043733,
+3500043834,
+3500044376,
+3500044618,
+3500060287,
+3500060478,
+3500060580,
+3500060758,
+3500061024,
+3500061034,
+3500061083,
+3500061262,
+3500061515,
+3500061740,
+3500061798,
+3500061799,
+3500062011,
+3500063425,
+3500063868,
+3500063873,
+3500064344,
+3500064356,
+3500064431,
+3500064700,
+3500064726,
+3500064828,
+3500064882,
+        ]
+
+def grabwells(codelist,output):
+    
+    counterrow = 0
+    
+    print('Running codelist {0} with output in {1}'.format(codelist,output))
+
+    for code in codelist:
+    #soup ingredients
+        address = 'http://siagasweb.cprm.gov.br/layout/detalhe.php?ponto=%s' % code
+        sauce = urllib.request.urlopen(address)
+        soup = bs.BeautifulSoup(sauce.read().decode('utf-8','ignore'), 'lxml')
+    
+    #list with processed values
+        td = []
+    
+        for item in soup.find_all('td'):
+            item = item.encode('utf-8').strip()
+            td.append(item)
+        
+        decoded = []
+        
+        for m in td:
+            decoded.append(m.decode())
+    
+    ###TEXT FECTHERS###
+    #finds list items with the string we are looking for
+        counter = 0
+        lista_data = []
+        lista_estatico = []
+        lista_dinamico = []
+        lista_lat = []
+        lista_long = []
+        lista_usoagua = []
+        lista_qesp = []
+        lista_qest = []
+        
+        for k in decoded:
+            if k.find('Duração do Teste (h):') != -1:
+                lista_data.append(counter)
+            
+            if k.find('vel Est') != -1:
+                lista_estatico.append(counter)
+    
+            if k.find(u'mico (m):') != -1:
+                lista_dinamico.append(counter)
+    
+            if k.find('Latitude (GGMMSS)') != -1:
+                lista_lat.append(counter)
+    
+            if k.find('Longitude (GGMMSS):') != -1:
+                lista_long.append(counter)
+    
+            if k.find('Uso da') != -1:
+                lista_usoagua.append(counter)
+    
+            if k.find('Espec') != -1:
+                lista_qesp.append(counter)
+    
+            if k.find(u'Estabiliza') != -1:
+                lista_qest.append(counter)
+            counter +=1
+    
+        #print(lista_data)
+        #print(lista_estatico)
+        #print(lista_lat)
+        #print(lista_long)
+        #print(lista_usoagua)
+        #print(lista_qesp)
+        #print(lista_qest)
+        
+    #fetches the date we are looking for
+        list_data_incontent = []
+        counter_data_incontent = 0
+        content_data = decoded[lista_data[0]].splitlines()
+        for c in content_data:
+            if 'Data:' in c:
+                list_data_incontent.append(counter_data_incontent)
+            counter_data_incontent+=1
+        adrress_incontent_data = list_data_incontent [0]+6
+        data_line = content_data[adrress_incontent_data]
+        data_line_start = data_line.find('>')
+        data_line_end = data_line.find('<',10)
+        data = data_line[data_line_start+2:data_line_end]
+        
+    #fetches the static level we are looking for
+        list_estatico_incontent = []
+        counter_estatico_incontent = 0
+        content_nivelest = decoded[lista_estatico[0]].splitlines()
+        for c in content_nivelest:
+            if 'Nível Estático (m):' in c:
+                list_estatico_incontent.append(counter_estatico_incontent)
+            counter_estatico_incontent+=1
+        adrress_incontent_nivelest = list_estatico_incontent [0]+6
+        nivelest_line = content_nivelest[adrress_incontent_nivelest]
+        nivelest_line_start = nivelest_line.find('>')
+        nivelest_line_end = nivelest_line.find('<',35)
+        nivelest = nivelest_line[nivelest_line_start+2:nivelest_line_end]
+        
+    #fetches the dynamic level we are looking for
+        list_dinamico_incontent = []
+        counter_dinamico_incontent = 0
+        content_niveldin = decoded[lista_dinamico[0]].splitlines()
+        for c in content_niveldin:
+            if 'Nível Dinâmico (m):' in c:
+                list_dinamico_incontent.append(counter_dinamico_incontent)
+            counter_dinamico_incontent+=1
+        adrress_incontent_niveldin = list_dinamico_incontent [0]+6
+        niveldin_line = content_niveldin[adrress_incontent_niveldin]
+        niveldin_line_start = niveldin_line.find('>')
+        niveldin_line_end = niveldin_line.find('<',35)
+        niveldin = niveldin_line[niveldin_line_start+2:niveldin_line_end]
+        
+    #fetches the latitude we are looking for
+        list_lat_incontent = []
+        counter_lat_incontent = 0
+        content_lat = decoded[lista_lat[0]].splitlines()
+        for c in content_lat:
+            if 'Latitude (GGMMSS):' in c:
+                list_lat_incontent.append(counter_lat_incontent)
+            counter_lat_incontent+=1
+        adrress_incontent_lat = list_lat_incontent [0]+1
+        lat_line = content_lat[adrress_incontent_lat]
+        lat_line_start = lat_line.find('>',60)
+        lat_line_end = lat_line.find('<',60)
+        lat = lat_line[lat_line_start+2:lat_line_end]
+        
+    #fetches the longitude we are looking for
+        list_long_incontent = []
+        counter_long_incontent = 0
+        content_long = decoded[lista_long[0]].splitlines()
+        for c in content_long:
+            if 'Longitude (GGMMSS):' in c:
+                list_long_incontent.append(counter_long_incontent)
+            counter_long_incontent+=1
+        adrress_incontent_long = list_long_incontent [0]+1
+        long_line = content_long[adrress_incontent_long]
+        long_line_start = long_line.find('>',60)
+        long_line_end = long_line.find('<',60)
+        long = long_line[long_line_start+2:long_line_end]
+    
+    #fetches the water use we are looking for
+        list_usoagua_incontent = []
+        counter_usoagua_incontent = 0
+        content_usoagua = decoded[lista_usoagua[0]].splitlines()
+        for c in content_usoagua:
+            if 'Uso da' in c:
+                list_usoagua_incontent.append(counter_usoagua_incontent)
+            counter_usoagua_incontent+=1
+        adrress_incontent_usoagua = list_usoagua_incontent [0]+1
+        usoagua_line = content_usoagua[adrress_incontent_usoagua]
+        usoagua_line_start = usoagua_line.find('>',60)
+        usoagua_line_end = usoagua_line.find('<',60)
+        usoagua = usoagua_line[usoagua_line_start+2:usoagua_line_end]
+        
+    #fetches the specific flow we are looking for
+        list_qesp_incontent = []
+        counter_qesp_incontent = 0
+        content_qesp = decoded[lista_qesp[0]].splitlines()
+        for c in content_qesp:
+            if 'Vazão Específica (m3/h/m):' in c:
+                list_qesp_incontent.append(counter_qesp_incontent)
+            counter_qesp_incontent+=1
+        adrress_incontent_qesp = list_qesp_incontent [0]+6
+        qesp_line = content_qesp[adrress_incontent_qesp]
+        qesp_line_start = qesp_line.find('>')
+        qesp_line_end = qesp_line.find('<',10)
+        qesp = qesp_line[qesp_line_start+2:qesp_line_end]
+        
+    #fetches the stable flow  we are looking for
+        list_qest_incontent = []
+        counter_qest_incontent = 0
+        content_qest = decoded[lista_qest[0]].splitlines()
+        for c in content_qest:
+            if 'Vazão Após Estabilização (m3/h):' in c:
+                list_qest_incontent.append(counter_qest_incontent)
+            counter_qest_incontent+=1
+        adrress_incontent_qest = list_qest_incontent [0]+6
+        qest_line = content_qest[adrress_incontent_qest]
+        qest_line_start = qest_line.find('>')
+        qest_line_end = qest_line.find('<',10)
+        qest = qest_line[qest_line_start+2:qest_line_end]
+        
+        if code == codelist[0]:
+            wells = np.array([['code'], ['datatestebomb'], ['nivelest'], ['niveldin'], ['lat'], ['long'], ['usoagua'], ['qesp'], ['qest']]).T
+            temp_array = np.array([[code], [data], [nivelest], [niveldin], [lat], [long], [usoagua], [qesp], [qest]]).T
+            wells = np.vstack((wells,temp_array))
+        else:
+            temp_array = np.array([[code], [data], [nivelest], [niveldin], [lat], [long], [usoagua], [qesp], [qest]]).T
+            wells = np.vstack((wells,temp_array))
+        counterrow += 1
+    
+    print(wells)
+    np.savetxt(output,wells,fmt='%s', delimiter=',')
+    print('concluido!')
+
+catolandia_output = r'G:\pocos\catolandia.txt'
+barreiras_output = r'G:\pocos\barreiras.txt'
+saodesiderio_output = r'G:\pocos\saodesiderio.txt'
+baianopolis_output = r'G:\pocos\baianopolis.txt'
+angical_output = r'G:\pocos\angical.txt'
+araucaria_output = r'G:\pocos\araucaria.txt'
+
+#grabwells(codelist_catolandia,catolandia_output)
+#grabwells(codelist_saodes,saodesiderio_output)
+#grabwells(codelist_barreiras,barreiras_output)
+#grabwells(codelist_baianopolis,baianopolis_output)
+grabwells(codelist_araucaria,araucaria_output)
